@@ -6,10 +6,28 @@ const { flatMap, reduce, groupBy, toArray, mergeMap, switchMap, scan, map, tap, 
 const { fromFetch } = rxjs.fetch;
 
 const dragItem = ({ target, x }) => {
-  const currCenter = parseInt(getComputedStyle(target).left) + (parseInt(getComputedStyle(target).width) / 2)
+  // console.log('bb', bb)
+  const dots = [...document.querySelectorAll('.dot')];
+  dots.forEach((d) => {
+    d.remove()
+
+  });
+  const { width, left, top, height } = target.getBoundingClientRect()
+  const dot = document.createElement('div');
+
+  const currCenter =  (width / 2);
+  const currMiddle = top + (height / 2);
+  dot.classList.add('dot')
+  dot.style.top = currMiddle + 'px'
+  dot.style.left = currCenter + 'px'
+  document.body.append(dot)
+
+  console.log('currCenter', currCenter)
   // console.log('currCenter', currCenter)
-  const center = x - (parseInt(getComputedStyle(target).width) / 2)
-  target.style.left = center + 'px'
+  const center = x - currCenter//(parseInt(getComputedStyle(target).width) / 2);
+  // const center = x - (parseInt(getComputedStyle(target).width) / 2);
+  target.style.left = (center) + 'px'
+  // target.style.left = currCenter + 'px'
 };
 
 const resetItem = ({ target, x }) => {
@@ -72,23 +90,16 @@ const swipe$ = pointerDown$
     tap(() => isSwiping = true),
     switchMap(startPoint => pointerMove$
       .pipe(
-        map(({ clientX, clientY, target }) => ({ x: clientX - startPoint.x, y: clientY-startPoint.y, target })),
-        // scan((prevPoint, currPoint) => {
-        //   console.log('prevPoint, currPoint', prevPoint, currPoint)
-        //   Points.dragStartPoint = prevPoint ? Points.dragStartPoint : currPoint;
+        scan((prev, { clientX, clientY, target }) => {
+          const { width, left, top, height } = target.getBoundingClientRect()
+          const currCenter = left + (width / 2);
 
-        //   if (!currPoint) {
-        //     Points.lastDragPoint = Points.basePoint;
-
-        //     return Points.basePoint;
-        //   }
-
-        //   return {
-        //     target: currPoint.target,
-        //     x: Points.lastDragPoint.x + (currPoint.x - Points.dragStartPoint.x),
-        //     y: Points.lastDragPoint.y + (currPoint.y - Points.dragStartPoint.y),
-        //   }
-        // }, Points.basePoint),
+          return {
+            x: currCenter + (clientX - currCenter),
+            y: (clientY) - (prev.y - startPoint.y),
+            target
+          }
+        }, startPoint),
         tap(dragItem),
 
         switchMap(curr => pointerUp$

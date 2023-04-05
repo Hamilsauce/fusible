@@ -2,10 +2,11 @@
 // import { saveSvg } from './lib/save-svg-image.js';
 import { GcodeParser, loadFile } from './gcode-parser.js';
 import { GcodePrinter } from './gcode-printer.js';
-import { Fusible, Infusible } from '../Fusible.js';
+import { Fusible, Infusible } from '../../Fusible.js';
+// import { Fusible, Infusible } from '../../Fusible.js'
 import { gcodePaths } from './data/gcode-paths.js';
 import ham from 'https://hamilsauce.github.io/hamhelper/hamhelper1.0.0.js';
-
+import { addPanAction } from '../../lib/pan-viewport.js';
 const { template, utils, DOM, download } = ham;
 
 const INITIAL_STATE = {
@@ -176,3 +177,10 @@ appState.listenOn('filepath', async (filepath) => {
   await loadGcodeFile(filepath)
   console.timeEnd('DRAW POINTS')
 });
+
+const pan$ = addPanAction(ui.svg, ({x,y}) => {
+  // console.log('e', e)
+  ui.svg.viewBox.baseVal.x =x
+  ui.svg.viewBox.baseVal.y =y
+})
+pan$.subscribe() 

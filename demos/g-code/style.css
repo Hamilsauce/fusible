@@ -92,6 +92,7 @@ select {
 svg {
   background: #E2D023;
   filter: invert(1);
+  touch-action: none;
 }
 
 #scene{
