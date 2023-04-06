@@ -1,8 +1,10 @@
+// import { Fusible, Infusible } from '../Fusible.js';
+
 export const loadFile = async (path) => {
   return await (await fetch(path)).text();
 };
 
-export class GcodeParser { //extends Infusible {
+export class GcodeParser {//extends Infusible {
   constructor(target) {
     // super(
     //   (fusible) => {

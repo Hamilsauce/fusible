@@ -5,11 +5,10 @@ import { GcodePrinter } from './gcode-printer.js';
 import { gcodePaths } from './data/gcode-paths.js';
 // import { Fusible, Infusible } from '../Fusible.js';
 // import { addPanAction } from '../lib/pan-viewport.js';
+import { TransformList } from '../lib/TransformList.js';
+import { zoom } from '../lib/zoom.js';
 import { Fusible, Infusible } from '../../Fusible.js';
 import { addPanAction } from '../../lib/pan-viewport.js';
-
-import { TransformList } from '../../lib/TransformList.js';
-import { zoom } from '../../lib/zoom.js';
 
 import ham from 'https://hamilsauce.github.io/hamhelper/hamhelper1.0.0.js';
 
@@ -105,8 +104,6 @@ const ui = {
   get appTitle() { return this.app.querySelector('#app-title') },
   get appHeader() { return this.app.querySelector('#app-header') },
   get appBody() { return this.app.querySelector('#app-body') },
-  get svg() { return this.appBody.querySelector('svg') },
-  get scene() { return this.svg.querySelector('#scene') },
   get save() { return this.app.querySelector('#save-image') },
   get controls() { return this.appBody.querySelector('#controls') },
   get fileSelect() { return this.controls.querySelector('#gcode-select') },
@@ -117,12 +114,17 @@ const ui = {
       out: this.appBody.querySelector('#zoom-out'),
     }
   },
-  
+
+  get svg() { return this.appBody.querySelector('svg') },
+  get scene() { return this.svg.querySelector('#scene') },
+
   createSelect({ id, children, onchange }) {
-    return DOM.createElement({
+    const sel = DOM.createElement({
       tag: 'select',
       elementProperties: { id, onchange },
     }, children);
+
+    return sel;
   },
 
   init() {
@@ -158,27 +160,27 @@ const ui = {
       })
     )
   },
-};
+}
 
 
 const appState = new AppState(INITIAL_STATE);
-ui.init();
 
+ui.init()
 
 const printer = new GcodePrinter();
-/*  
-  @FUSION - Extend printer with fusibility 
-            allow extension by interfacing with Infusible
+
+/*  @FUSION - Extend printer with fusibility 
+      allow extension by interfacing with Infusible
 */
 Fusible.fusify(printer);
 
 
 const parser = new GcodeParser(printer);
-/*  
-  @FUSION - Extend parser with infusibility 
-            allow Fusible to infuse itself with
-            methods and data that parser exposes 
-            via infuse method
+
+/*  @FUSION - Extend parser with infusibility 
+      allow Fusible to infuse itself with
+      methods and data that parser exposes 
+      via infuse method
 */
 Infusible.infusify(parser,
   (fusible) => {
@@ -199,20 +201,19 @@ Infusible.infusify(parser,
 const parserFusion = printer.fuse(parser);
 
 const loadGcodeFile = async (path) => {
-  appState.update('appTitle', 'loading...');
+  appState.update('appTitle', 'loading...')
 
-  const rawGcode = await printer.loadGcode(path);
-  const gcodeLines = parser.parse(rawGcode);
+  const rawGcode = await printer.loadGcode(path)
+  const gcodeLines = parser.parse(rawGcode)
 
   const gcodeCoords = gcodeLines.filter(_ => !!_.x && !!_.y);
 
   // download(path.slice(0, path.indexOf('.gcode')) + 'grouped.json', JSON.stringify(gcodeLinesByCommand, null, 2))
 
   ui.scene.innerHTML = '';
-  // ui.scene.style.display = 'none';
-  
-  window._times = [];
-  
+
+  // ui.scene.style.display = 'none'
+  window._times = []
   ui.scene.append(...(await Promise.all(
     gcodeCoords.map((async (code, i) => {
       const p = document.createElementNS(ui.svg.namespaceURI, 'circle');
@@ -223,7 +224,7 @@ const loadGcodeFile = async (path) => {
 
       window._times.push([i, performance.now()]);
 
-      return p;
+      return p9;
     })))));
 
   appState.update('appTitle', 'GCODE');
@@ -259,20 +260,29 @@ const setTransformAttr = (el, transforMap = {}) => {
   const tMap = transformString
     .split(') ')
     .reduce((map, curr, i) => {
+
       const type = curr.slice(0, curr.indexOf('('));
+      const valuesString = curr.slice(
+        curr.indexOf('(') + 1)
 
       const values = curr.slice(curr.indexOf('('))
         .split(/\s|,/g)
         .map(_ => +_);
 
       return { ...map, [type]: values };
-    }, { translate: [], rotate: [], scale: [], });
+    }, {
+      translate: [],
+      rotate: [],
+      scale: [],
+    });
 
-  return tMap;
+  return tMap
 };
 
 
+
 setTimeout(() => {
+  // const zoom = ui.zoom.container
   const svg = ui.svg;
   const scene = svg.querySelector('#scene')
 
@@ -281,24 +291,24 @@ setTimeout(() => {
     e.stopPropagation()
     e.stopImmediatePropagation()
 
-    const vb = svg.viewBox.baseVal;
-    const zoomId = e.target.closest('.zoom-button').id;
+    const vb = svg.viewBox.baseVal
+    const zoomId = e.target.closest('.zoom-button').id
 
     // ui.scene.style.display = 'none'
 
-    const sTime = performance.now();
+    const sTime = performance.now()
 
     if (zoomId === 'zoom-in') {
-      zoom.in(svg);
+      zoom.in(svg)
     }
 
     else if (zoomId === 'zoom-out') {
-      zoom.out(svg);
+      zoom.out(svg)
     }
 
     setTimeout(() => {
-      const eTime = performance.now();
-      const elapsed = ((eTime - sTime) / 1000) / 60;
+      const eTime = performance.now()
+      const elapsed = ((eTime - sTime) / 1000) / 60
 
       // ui.scene.style.display = null
 
