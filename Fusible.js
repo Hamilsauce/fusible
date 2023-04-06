@@ -31,10 +31,11 @@ export class Infusible {
     this.defuse = defuseFunction;
   }
 
-  static infusify(target, infuseFn, defuseFn) {
-    Object.assign(target, {
-      infuse: infuseFn.bind(target),
-      defuse: defuseFn.bind(target),
+  static infusify(thingToMakeInfusible, infuseFn, defuseFn) {
+    const proto = thingToMakeInfusible.constructor.prototype
+    Object.assign(proto, {
+      infuse: infuseFn.bind(proto),
+      defuse: defuseFn.bind(proto),
     });
   }
 
@@ -57,6 +58,7 @@ export class Fusible {
   }
 
   fuse(infusible = {}, options = {}) {
+    console.log('infusible', infusible)
     if (!(infusible.infuse && infusible.defuse)) throw new Error('Object passed to fuse missing enfuse and defuse methods');
 
     infusible.infuse(this, options)

@@ -182,7 +182,7 @@ const parser = new GcodeParser(printer);
 */
 Infusible.infusify(parser,
   (fusible) => {
-    Object.assign(fusible, {
+    Object.assign(fusible.constructor.prototype, {
       groupByCommandType: parser.groupByCommandType,
       loadGcode: parser.loadGcode,
     });
@@ -197,7 +197,9 @@ Infusible.infusify(parser,
 
 
 const parserFusion = printer.fuse(parser);
-
+console.log('parser', parser)
+console.log('printer', printer)
+console.log('parserFusion', parserFusion)
 const loadGcodeFile = async (path) => {
   appState.update('appTitle', 'loading...');
 
